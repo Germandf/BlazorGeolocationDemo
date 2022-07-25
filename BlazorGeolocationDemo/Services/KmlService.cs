@@ -8,18 +8,29 @@ public class KmlService : IKmlService
 {
     public string? GetCity(double latitude, double longitude)
     {
-        var stream = File.OpenRead("wwwroot/kml/tres-arroyos.kml");
-        var file = KmlFile.Load(stream);
-        var placemark = file.Root.Flatten().OfType<Placemark>().FirstOrDefault();
-        List<Vector> polygon = new();
+        List<City> cities = new();
 
-        foreach (var poly in file.Root.Flatten().OfType<Polygon>())
-            foreach (var coordinates in file.Root.Flatten().OfType<CoordinateCollection>())
-                foreach (var coordinate in coordinates)
-                    polygon.Add(coordinate);
+        foreach (var filePath in Directory.GetFiles("wwwroot/kml"))
+        {
+            var stream = File.OpenRead(filePath);
+            var file = KmlFile.Load(stream);
+            var placemark = file.Root.Flatten().OfType<Placemark>().FirstOrDefault();
 
-        if (IsPointInside(polygon.ToArray(), new() { Latitude = latitude, Longitude = longitude }))
-            return placemark?.Name;
+            var city = new City(placemark?.Name ?? "", new());
+
+            foreach (var poly in file.Root.Flatten().OfType<Polygon>())
+                foreach (var coordinates in file.Root.Flatten().OfType<CoordinateCollection>())
+                    foreach (var coordinate in coordinates)
+                        city.Polygons.Add(coordinate);
+
+            cities.Add(city);
+        }
+
+        foreach (var city in cities)
+        {
+            if (IsPointInside(city.Polygons.ToArray(), new() { Latitude = latitude, Longitude = longitude }))
+                return city.Name;
+        }
         
         return null;
     }
@@ -39,5 +50,7 @@ public class KmlService : IKmlService
 
         return result;
     }
+
+    public record City(string Name, List<Vector> Polygons);
 
 }
