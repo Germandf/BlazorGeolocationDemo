@@ -7,12 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Services\" />
+    <PackageReference Include="Darnton.Blazor.DeviceInterop" Version="0.1.2" />
+    <PackageReference Include="SharpKml.Core" Version="5.2.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Darnton.Blazor.DeviceInterop" Version="0.1.2" />
-    <PackageReference Include="SharpKml.Core" Version="5.2.0" />
+    <None Include="wwwroot\kml\tres-arroyos.kml" />
   </ItemGroup>
 
 </Project>

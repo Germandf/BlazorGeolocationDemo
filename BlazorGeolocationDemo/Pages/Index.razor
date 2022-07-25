@@ -1,23 +1,25 @@
 ﻿@page "/"
-@using Darnton.Blazor.DeviceInterop.Geolocation
 @inject IGeolocationService _geolocationService
+@inject IKmlService _kmlService
 
 <PageTitle>Index</PageTitle>
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
+<h1>BlazorGeolocationDemo</h1>
 
 @if (location is not null)
 {
-    <p>@location.Coords.Latitude</p>
-    <p>@location.Coords.Longitude</p>
-    <p>@location.Coords.Accuracy</p>
+    <p>Latitude: @location.Coords.Latitude</p>
+    <p>Longitude: @location.Coords.Longitude</p>
+}
+@if (!string.IsNullOrWhiteSpace(city))
+{
+    <p>City: @city</p>
 }
 
 @code {
 
     GeolocationPosition? location;
+    string? city = null;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -27,6 +29,7 @@ Welcome to your new app.
             if (result.IsSuccess)
             {
                 location = result.Position;
+                city = _kmlService.GetCity(location.Coords.Latitude, location.Coords.Longitude);
                 StateHasChanged();
             }
         }
