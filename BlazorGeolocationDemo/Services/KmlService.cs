@@ -23,6 +23,11 @@ public class KmlService : IKmlService
                     foreach (var coordinate in coordinates)
                         city.Polygons.Add(coordinate);
 
+            foreach (var lineString in file.Root.Flatten().OfType<LineString>())
+                foreach (var coordinates in file.Root.Flatten().OfType<CoordinateCollection>())
+                    foreach (var coordinate in coordinates)
+                        city.Polygons.Add(coordinate);
+
             cities.Add(city);
         }
 
