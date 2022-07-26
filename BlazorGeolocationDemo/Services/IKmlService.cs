@@ -3,4 +3,5 @@
 public interface IKmlService
 {
     string? GetCity(double latitude, double longitude);
+    void GenerateCity();
 }

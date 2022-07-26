@@ -25,6 +25,7 @@
     {
         if (firstRender)
         {
+            _kmlService.GenerateCity();
             var result = await _geolocationService.GetCurrentPosition();
             if (result.IsSuccess)
             {

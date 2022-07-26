@@ -6,6 +6,46 @@ namespace BlazorGeolocationDemo.Services;
 
 public class KmlService : IKmlService
 {
+    private readonly double _tsAsLatitude = -38.377048;
+    private readonly double _tsAsLongitude = -60.275883;
+    private readonly int _tsAsMeters = 7000;
+
+    public void GenerateCity()
+    {
+        GetBoundingBox(_tsAsLatitude, _tsAsLongitude, _tsAsMeters, 
+            out double deltaLat, out double deltaLon);
+
+        var vector1 = new Vector() { Latitude = _tsAsLatitude - deltaLat, Longitude = _tsAsLongitude + deltaLon };
+        var vector2 = new Vector() { Latitude = _tsAsLatitude - deltaLat, Longitude = _tsAsLongitude - deltaLon };
+        var vector3 = new Vector() { Latitude = _tsAsLatitude + deltaLat, Longitude = _tsAsLongitude - deltaLon };
+        var vector4 = new Vector() { Latitude = _tsAsLatitude + deltaLat, Longitude = _tsAsLongitude + deltaLon };
+        var vector5 = new Vector() { Latitude = _tsAsLatitude - deltaLat, Longitude = _tsAsLongitude + deltaLon };
+
+        var polygon = new Polygon()
+        {
+            OuterBoundary = new() { LinearRing = new() { Coordinates = new() { vector1, vector2, vector3, vector4, vector5 } } }
+        };
+
+        var lineString = new LineString
+        {
+            Coordinates = new() { vector1, vector2, vector3, vector4, vector5 }
+        };
+
+        var placemark = new Placemark
+        {
+            // polygon could be replaced by lineString
+            Geometry = polygon,
+            Name = "Tres Arroyos",
+        };
+
+        KmlFile kml = KmlFile.Create(placemark, false);
+
+        using (FileStream stream = File.Create("wwwroot/kml/tres-arroyos.kml"))
+        {
+            kml.Save(stream);
+        }
+    }
+
     public string? GetCity(double latitude, double longitude)
     {
         List<City> cities = new();
@@ -54,6 +94,18 @@ public class KmlService : IKmlService
         }
 
         return result;
+    }
+
+    private void GetBoundingBox(
+        double pLatitude, double pLongitude, int pDistanceInMeters, 
+        out double deltaLat, out double deltaLong)
+    {
+        double latRadian = (Math.PI / 180) * pLatitude;
+        double degLatKm = 110.574235;
+        double degLongKm = 110.572833 * Math.Cos(latRadian);
+
+        deltaLat = pDistanceInMeters / 1000.0 / degLatKm;
+        deltaLong = pDistanceInMeters / 1000.0 / degLongKm;
     }
 
     public record City(string Name, List<Vector> Polygons);
