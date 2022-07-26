@@ -12,14 +12,14 @@ public class KmlService : IKmlService
 
     public void GenerateCity()
     {
-        GetBoundingBox(_tsAsLatitude, _tsAsLongitude, _tsAsMeters, 
-            out double deltaLat, out double deltaLon);
+        CalculateLatAndLonDifference(_tsAsLatitude, _tsAsMeters, 
+            out double latDifference, out double lonDifference);
 
-        var vector1 = new Vector() { Latitude = _tsAsLatitude - deltaLat, Longitude = _tsAsLongitude + deltaLon };
-        var vector2 = new Vector() { Latitude = _tsAsLatitude - deltaLat, Longitude = _tsAsLongitude - deltaLon };
-        var vector3 = new Vector() { Latitude = _tsAsLatitude + deltaLat, Longitude = _tsAsLongitude - deltaLon };
-        var vector4 = new Vector() { Latitude = _tsAsLatitude + deltaLat, Longitude = _tsAsLongitude + deltaLon };
-        var vector5 = new Vector() { Latitude = _tsAsLatitude - deltaLat, Longitude = _tsAsLongitude + deltaLon };
+        var vector1 = new Vector() { Latitude = _tsAsLatitude - latDifference, Longitude = _tsAsLongitude + lonDifference };
+        var vector2 = new Vector() { Latitude = _tsAsLatitude - latDifference, Longitude = _tsAsLongitude - lonDifference };
+        var vector3 = new Vector() { Latitude = _tsAsLatitude + latDifference, Longitude = _tsAsLongitude - lonDifference };
+        var vector4 = new Vector() { Latitude = _tsAsLatitude + latDifference, Longitude = _tsAsLongitude + lonDifference };
+        var vector5 = new Vector() { Latitude = _tsAsLatitude - latDifference, Longitude = _tsAsLongitude + lonDifference };
 
         var polygon = new Polygon()
         {
@@ -96,16 +96,16 @@ public class KmlService : IKmlService
         return result;
     }
 
-    private void GetBoundingBox(
-        double pLatitude, double pLongitude, int pDistanceInMeters, 
-        out double deltaLat, out double deltaLong)
+    private void CalculateLatAndLonDifference(
+        double latitude, int pDistanceInMeters, 
+        out double latDifference, out double lonDifference)
     {
-        double latRadian = (Math.PI / 180) * pLatitude;
+        double latRadian = (Math.PI / 180) * latitude;
         double degLatKm = 110.574235;
         double degLongKm = 110.572833 * Math.Cos(latRadian);
 
-        deltaLat = pDistanceInMeters / 1000.0 / degLatKm;
-        deltaLong = pDistanceInMeters / 1000.0 / degLongKm;
+        latDifference = pDistanceInMeters / 1000.0 / degLatKm;
+        lonDifference = pDistanceInMeters / 1000.0 / degLongKm;
     }
 
     public record City(string Name, List<Vector> Polygons);
